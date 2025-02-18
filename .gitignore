@@ -1,0 +1,6 @@
+qrcodes
+qrcodes.db
+env
+tickets.pdf
+private_key.pem
+public_key.pem
