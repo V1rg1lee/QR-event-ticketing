@@ -69,4 +69,5 @@ def generate_qr_codes(db_path, output_folder, num_codes=2000):
     print("🎉 Génération terminée !")
 
 # Exécution de la génération
-generate_qr_codes("qrcodes.db", "qrcodes", num_codes=2000)
+if __name__ == "__main__":  
+    generate_qr_codes("qrcodes.db", "qrcodes", num_codes=2000)

@@ -7,7 +7,7 @@ import base64
 import os
 
 db_path = os.path.abspath("qrcodes.db")
-app = Flask(__name__, static_folder="../frontend")
+app = Flask(__name__, static_folder="../static")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -70,7 +70,5 @@ def verify_qr_code():
 
 @app.route("/")
 def serve_frontend():
+    print(app.static_folder)
     return send_from_directory(app.static_folder, "index.html")
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, ssl_context=("../certs/cert.pem", "../certs/key.pem"), debug=True)

@@ -1,0 +1,36 @@
+[project]
+name = "event-ticketing"
+version = "0.1.0"
+requires-python = ">=3.9"
+description = "Generate and verify event tickets using Python"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE" }
+authors = [
+    { name = "Virgile Devolder", email = "virgile.devolder2@gmail.com" }
+]
+maintainers = [
+    {name = "Martin Devolder", email = "martin.devolder2@gmail.com"}
+]
+urls = { Repository = "https://github.com/V1rg1lee/event-ticketing.git" }
+
+dependencies = [
+    "pycryptodome",
+    "reportlab",
+    "pillow",
+    "flask",
+    "flask-cors",
+    "flask-sqlalchemy"
+]
+
+[project.optional-dependencies]
+scripts = [
+    "qrcode",
+    "fpdf"
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["event-ticketing"]

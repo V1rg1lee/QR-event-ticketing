@@ -58,4 +58,5 @@ def generate_pdf(qr_folder, output_pdf):
     pdf.output(output_pdf)
 
 # Utilisation
-generate_pdf("qrcodes", "tickets.pdf")
+if __name__ == "__main__":
+    generate_pdf("qrcodes", "tickets.pdf")

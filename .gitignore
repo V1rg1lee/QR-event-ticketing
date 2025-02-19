@@ -4,3 +4,6 @@ env
 tickets.pdf
 private_key.pem
 public_key.pem
+build/
+*.egg-info/
+*.pyc

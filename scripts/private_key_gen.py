@@ -16,4 +16,5 @@ def generate_rsa_keys():
     print("🔓 Clé publique : public_key.pem")
 
 # Exécute la génération des clés
-generate_rsa_keys()
+if __name__ == "__main__":
+    generate_rsa_keys()
