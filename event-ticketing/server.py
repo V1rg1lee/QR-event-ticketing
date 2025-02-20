@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 import os
@@ -64,3 +64,14 @@ def serve_frontend(request: Request) -> HTMLResponse:
     HTMLResponse: The response object.
     """
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/robots.txt")
+def serve_robots() -> FileResponse:
+    """
+    Serve the robots.txt file.
+
+    Returns:
+    FileResponse: The response object.
+    """
+    return FileResponse("static/robots.txt")
