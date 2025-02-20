@@ -14,6 +14,16 @@ Base.metadata.create_all(bind=engine)
 
 @app.post("/verify")
 def verify_qr_code(request: Request, db: Session = Depends(get_db)) -> JSONResponse:
+    """
+    Verify the QR code and mark it as used if valid.
+
+    Args:
+    request (Request): The request object.
+    db (Session): The database session.
+
+    Returns:
+    JSONResponse: The response object.
+    """
     data = request.json
     qr_content = data.get("uuid", "").strip()
 
@@ -44,4 +54,13 @@ def verify_qr_code(request: Request, db: Session = Depends(get_db)) -> JSONRespo
 
 @app.get("/")
 def serve_frontend(request: Request) -> HTMLResponse:
+    """
+    Serve the frontend.
+
+    Args:
+    request (Request): The request object.
+
+    Returns:
+    HTMLResponse: The response object.
+    """
     return templates.TemplateResponse("index.html", {"request": request})

@@ -7,43 +7,61 @@ import sqlite3
 import uuid
 import os
 
-# Charger la clé privée RSA
 
+def load_private_key() -> RSA.RsaKey:
+    """
+    Load the private key from the file `private_key.pem`.
 
-def load_private_key():
+    Returns:
+    RSA.RsaKey: The private key.
+    """
     with open("private_key.pem", "r") as f:
         return RSA.import_key(f.read())
 
-# Générer une signature pour un UUID
 
+def sign_uuid(uuid_str: str, private_key: RSA.RsaKey) -> str:
+    """
+    Sign a UUID with the private key.
 
-def sign_uuid(uuid_str, private_key):
+    Args:
+    uuid_str (str): The UUID to sign.
+    private_key (RSA.RsaKey): The private key to sign the UUID.
+
+    Returns:
+    str: The signature of the UUID.
+    """
     h = SHA256.new(uuid_str.encode())
     signature = pkcs1_15.new(private_key).sign(h)
     return base64.b64encode(signature).decode()  # Encodage en base64
 
-# Générer un QR code et l'enregistrer en PNG
 
+def generate_qr_code(content: str, file_path: str) -> None:
+    """
+    Generate a QR code with the given content and save it to the file.
 
-def generate_qr_code(content, file_path):
+    Args:
+    content (str): The content of the QR code.
+    file_path (str): The file path to save the QR code.
+    """
     qr = qrcode.make(content)
     qr.save(file_path)
 
-# Générer les QR codes signés
 
+def generate_qr_codes(db_path: str, output_folder: str, num_codes: int) -> None:
+    """
+    Generate QR codes with unique UUIDs and signatures and save them to the output folder.
 
-def generate_qr_codes(db_path, output_folder, num_codes=2000):
-    # Assurer l'existence du dossier de sortie
+    Args:
+    db_path (str): The path to the SQLite database.
+    output_folder (str): The folder to save the QR codes.
+    num_codes (int): The number of QR codes to generate.
+    """
     os.makedirs(output_folder, exist_ok=True)
-
-    # Charger la clé privée
     private_key = load_private_key()
 
-    # Connexion à la base SQLite
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    # Création de la table si elle n'existe pas
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS qrcodes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,29 +72,21 @@ def generate_qr_codes(db_path, output_folder, num_codes=2000):
     conn.commit()
 
     for i in range(1, num_codes + 1):
-        # Générer un UUID
         unique_id = str(uuid.uuid4())
-
-        # Signer l'UUID
         signature = sign_uuid(unique_id, private_key)
-
-        # Contenu du QR Code
         qr_content = f"{unique_id}|{signature}"
 
-        # Insérer dans la base de données
         cursor.execute("INSERT INTO qrcodes (uuid) VALUES (?)", (unique_id,))
         conn.commit()
 
-        # Générer et sauvegarder le QR code
         file_path = os.path.join(output_folder, f"{i}.png")
         generate_qr_code(qr_content, file_path)
 
-        print(f"✅ QR Code {i}/{num_codes} généré avec signature.")
+        print(f"✅ QR Code {i}/{num_codes} generated")
 
     conn.close()
-    print("🎉 Génération terminée !")
+    print("🎉 All QR Codes generated")
 
 
-# Exécution de la génération
 if __name__ == "__main__":
     generate_qr_codes("qrcodes.db", "qrcodes", num_codes=2000)

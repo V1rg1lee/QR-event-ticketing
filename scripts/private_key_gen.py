@@ -1,22 +1,24 @@
 from Crypto.PublicKey import RSA
 
 
-def generate_rsa_keys():
+def generate_rsa_keys() -> None:
+    """
+    Generate RSA keys and save them to the files `private_key.pem` and `public_key.pem`.
+    """
     key = RSA.generate(2048)
 
-    # Sauvegarde de la clé privée au format PKCS#1 (compatible Rust)
+    # Save the private key to a file in PKCS#1 format
     with open("private_key.pem", "wb") as priv_file:
         priv_file.write(key.export_key(format="PEM", pkcs=1))
 
-    # Sauvegarde de la clé publique pour la vérification en Flask
+    # Save the public key to a file in PKCS#1 format
     with open("public_key.pem", "wb") as pub_file:
         pub_file.write(key.publickey().export_key(format="PEM"))
 
-    print("✅ Clés RSA générées avec succès !")
-    print("🔑 Clé privée : private_key.pem")
-    print("🔓 Clé publique : public_key.pem")
+    print("✅ RSA keys generated successfully.")
+    print("🔑 Private key: private_key.pem")
+    print("🔓 Public key: public_key.pem")
 
 
-# Exécute la génération des clés
 if __name__ == "__main__":
     generate_rsa_keys()
