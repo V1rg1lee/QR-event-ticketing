@@ -13,7 +13,7 @@ Base.metadata.create_all(bind=engine)
 
 
 @app.post("/verify")
-def verify_qr_code(request: Request, db: Session = Depends(get_db)) -> JSONResponse:
+async def verify_qr_code(request: Request, db: Session = Depends(get_db)) -> JSONResponse:
     """
     Verify the QR code and mark it as used if valid.
 
@@ -24,7 +24,7 @@ def verify_qr_code(request: Request, db: Session = Depends(get_db)) -> JSONRespo
     Returns:
     JSONResponse: The response object.
     """
-    data = request.json
+    data = await request.json()
     qr_content = data.get("uuid", "").strip()
 
     if not qr_content:
