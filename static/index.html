@@ -18,9 +18,9 @@
     <h1>Scanner un QR Code</h1>
     <video id="video" width="300" height="200" autoplay></video>
     <canvas id="canvas" hidden></canvas>
-    <p id="status" class="not-detected">🔍 Aucun QR Code détecté</p>
+    <p id="status" class="not-detected">🎥 Allow camera access</p>
     <p id="result"></p>
-    <button id="scanButton" onclick="startScanning()">📸 Scanner maintenant</button>
+    <button id="scanButton" onclick="startScanning()">📸 Scan Now</button>
 
     <script>
         const API_URL = window.location.hostname === "localhost"
@@ -46,12 +46,12 @@
                 video.srcObject = stream;
                 video.setAttribute("playsinline", true);
                 video.play();
-                statusText.innerText = "✅ Caméra activée. Appuyez sur 'Scanner maintenant'.";
+                statusText.innerText = "✅ Camera enabled. Tap 'Scan Now'.";
                 statusText.className = "detected";
             })
             .catch(function(err) {
-                alert("❌ Erreur d'accès à la caméra : " + err.message);
-                statusText.innerText = "❌ Erreur caméra";
+                alert("❌ Camera Access Error: " + err.message);
+                statusText.innerText = "❌ Camera error";
                 statusText.className = "not-detected";
             });
 
@@ -59,7 +59,7 @@
             if (scanning) return;
             scanning = true;
             scanButton.disabled = true;
-            statusText.innerText = "🔍 Recherche d'un QR Code...";
+            statusText.innerText = "🔍 Search for a QR Code...";
             statusText.className = "not-detected";
             resultText.innerText = "";
 
@@ -69,7 +69,7 @@
                 if (!scanning) return;
                 if (Date.now() - startTime > 5000) {
                     stopScanning();
-                    statusText.innerText = "❌ Aucun QR Code trouvé, réessayez.";
+                    statusText.innerText = "❌ No QR Code found, try again.";
                     return;
                 }
 
@@ -81,7 +81,7 @@
                     const code = jsQR(imageData.data, imageData.width, imageData.height);
                     
                     if (code) {
-                        statusText.innerText = "✅ QR Code détecté";
+                        statusText.innerText = "✅ QR Code detected";
                         statusText.className = "detected";
                         scanning = false;
                         scanButton.disabled = false;
@@ -90,7 +90,7 @@
                             lastScannedCode = code.data;
                             sendToAPI(code.data);
                         } else {
-                            resultText.innerText = "❌ Ce QR Code vient d'être scanné.";
+                            resultText.innerText = "❌ This QR Code has just been scanned.";
                         }
                         return;
                     }
@@ -121,7 +121,7 @@
                 }
             })
             .catch(error => {
-                resultText.innerText = "❌ Erreur de communication avec le serveur: " + error;
+                resultText.innerText = "❌ Server Communication Error: " + error;
             });
         }
     </script>
