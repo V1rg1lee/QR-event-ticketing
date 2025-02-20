@@ -48,7 +48,7 @@ async def verify_qr_code(request: Request, db: Session = Depends(get_db)) -> JSO
         return JSONResponse({"error": "❌ QR code already used"}, status_code=400)
 
     qr_code.used = True
-    db.session.commit()
+    db.commit()
     return JSONResponse({"message": "✅ QR code valid"})
 
 
