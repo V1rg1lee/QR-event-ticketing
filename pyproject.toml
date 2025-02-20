@@ -17,9 +17,10 @@ dependencies = [
     "pycryptodome",
     "reportlab",
     "pillow",
-    "flask",
-    "flask-cors",
-    "flask-sqlalchemy"
+    "fastapi",
+    "uvicorn",
+    "sqlalchemy",
+    "jinja2"
 ]
 
 [project.optional-dependencies]

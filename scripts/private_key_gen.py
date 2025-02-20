@@ -1,5 +1,6 @@
 from Crypto.PublicKey import RSA
 
+
 def generate_rsa_keys():
     key = RSA.generate(2048)
 
@@ -14,6 +15,7 @@ def generate_rsa_keys():
     print("✅ Clés RSA générées avec succès !")
     print("🔑 Clé privée : private_key.pem")
     print("🔓 Clé publique : public_key.pem")
+
 
 # Exécute la génération des clés
 if __name__ == "__main__":

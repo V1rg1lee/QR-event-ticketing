@@ -1,74 +1,47 @@
-from flask import Flask, request, send_from_directory
-from flask_sqlalchemy import SQLAlchemy
-from Crypto.PublicKey import RSA
-from Crypto.Signature import pkcs1_15
-from Crypto.Hash import SHA256
-import base64
+from fastapi import FastAPI, Request, Depends
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
 import os
+from .db import Base, QRCodes, engine
+from .utils import get_db, load_public_key, verify_signature
 
-db_path = os.path.abspath("qrcodes.db")
-app = Flask(__name__, static_folder="../static")
+app = FastAPI()
+templates = Jinja2Templates(directory="static")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
+Base.metadata.create_all(bind=engine)
 
-class QRCodes(db.Model):
-    __tablename__ = "qrcodes"
-    id = db.Column(db.Integer, primary_key=True)
-    uuid = db.Column(db.String(50), unique=True, nullable=False)
-    used = db.Column(db.Boolean, default=False)
 
-with app.app_context():
-    db.create_all()
-
-def load_public_key():
-    with open("public_key.pem", "r") as f:
-        return RSA.import_key(f.read())
-
-def verify_signature(uuid, signature, public_key):
-    try:
-        decoded_signature = base64.b64decode(signature)
-        h = SHA256.new(uuid.encode())
-        pkcs1_15.new(public_key).verify(h, decoded_signature)
-        return True
-    except (ValueError, TypeError) as e:
-        print("❌ Signature invalide")
-        print(f"Error: {e}")
-        return False
-
-@app.route("/verify", methods=["POST"])
-def verify_qr_code():
+@app.post("/verify")
+def verify_qr_code(request: Request, db: Session = Depends(get_db)) -> JSONResponse:
     data = request.json
     qr_content = data.get("uuid", "").strip()
 
     if not qr_content:
-        return "❌ QR Code invalide", 400
+        return JSONResponse({"error": "❌ QR code format incorrect"}, status_code=400)
 
     parts = qr_content.split("|")
     if len(parts) != 2:
-        return "❌ Format QR Code incorrect", 400
+        return JSONResponse({"error": "❌ QR code format incorrect"}, status_code=400)
 
     uuid, signature = parts
     public_key = load_public_key()
 
-    print(f"Vérification du QR Code {uuid} avec signature {signature}")
-    print(f"Clé publique : {public_key.export_key().decode()}")
     if not verify_signature(uuid, signature, public_key):
-        return "❌ QR Code falsifié", 403
+        return JSONResponse({"error": "❌ QR code falsified"}, status_code=403)
 
-    qr_code = QRCodes.query.filter_by(uuid=uuid).first()
+    qr_code = db.query(QRCodes).filter_by(uuid=uuid).first()
     if not qr_code:
-        return "❌ QR Code non reconnu", 404
+        return JSONResponse({"error": "❌ QR code unrecognized"}, status_code=404)
 
     if qr_code.used:
-        return "❌ QR Code déjà utilisé", 400
+        return JSONResponse({"error": "❌ QR code already used"}, status_code=400)
 
     qr_code.used = True
     db.session.commit()
-    return "✅ QR Code valide, accès autorisé", 200
+    return JSONResponse({"message": "✅ QR code valid"})
 
-@app.route("/")
-def serve_frontend():
-    print(app.static_folder)
-    return send_from_directory(app.static_folder, "index.html")
+
+@app.get("/")
+def serve_frontend(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse("index.html", {"request": request})

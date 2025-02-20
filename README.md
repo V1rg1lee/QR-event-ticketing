@@ -5,7 +5,7 @@
 ### Install the project
 
 ```bash
-git clone https://github.com/V1rg1lee/event-ticketing.git"
+git clone https://github.com/V1rg1lee/event-ticketing.git
 cd event-ticketing
 ```
 
