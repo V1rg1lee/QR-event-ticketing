@@ -112,9 +112,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ uuid: qrData })
             })
-            .then(response => response.text())
+            .then(response => response.json())
             .then(data => {
-                resultText.innerText = data;
+                if (data.message) {
+                resultText.innerText = data.message;
+                } else {
+                resultText.innerText = data.error;
+                }
             })
             .catch(error => {
                 resultText.innerText = "❌ Erreur de communication avec le serveur: " + error;
