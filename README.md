@@ -24,6 +24,12 @@ pip install .
 python -m event-ticketing
 ```
 
+### Run the project with a self signed certificate
+
+```bash
+python -m event-ticketing --ssl
+```
+
 ### Run the scripts
 
 #### Install the optional dependencies
@@ -33,6 +39,8 @@ pip install .[scripts]
 ```
 
 #### Run the scripts
+
+You must be in the root directory of the project to run the scripts.
 
 ```bash
 python ./scripts/private_key_gen.py
