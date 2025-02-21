@@ -25,7 +25,7 @@ def load_public_key() -> RSA.RsaKey:
     Returns:
     RSA.RsaKey: The public key.
     """
-    with open("public_key.pem", "r") as f:
+    with open("data/public_key.pem", "r") as f:
         return RSA.import_key(f.read())
 
 

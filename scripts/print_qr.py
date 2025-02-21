@@ -69,4 +69,4 @@ def generate_pdf(qr_folder: str, output_pdf: str) -> None:
 
 
 if __name__ == "__main__":
-    generate_pdf("qrcodes", "tickets.pdf")
+    generate_pdf("data/qrcodes", "data/tickets.pdf")

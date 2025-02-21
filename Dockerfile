@@ -13,4 +13,4 @@ RUN /venv/bin/pip install .
 
 EXPOSE 5000
 
-CMD ["/venv/bin/python", "-m", "event-ticketing"]
+CMD ["/venv/bin/python", "-E", "-m", "event-ticketing"]

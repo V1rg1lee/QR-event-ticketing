@@ -17,7 +17,7 @@ def load_private_key() -> RSA.RsaKey:
     Returns:
     RSA.RsaKey: The private key.
     """
-    with open("private_key.pem", "r") as f:
+    with open("data/private_key.pem", "r") as f:
         return RSA.import_key(f.read())
 
 
@@ -91,4 +91,4 @@ def generate_qr_codes(db_path: str, output_folder: str, num_codes: int) -> None:
 
 
 if __name__ == "__main__":
-    generate_qr_codes("qrcodes.db", "qrcodes", num_codes=2000)
+    generate_qr_codes("data/qrcodes.db", "data/qrcodes", num_codes=2000)

@@ -10,11 +10,11 @@ def generate_rsa_keys() -> None:
     key = RSA.generate(2048)
 
     # Save the private key to a file in PKCS#1 format
-    with open("private_key.pem", "wb") as priv_file:
+    with open("data/private_key.pem", "wb") as priv_file:
         priv_file.write(key.export_key(format="PEM", pkcs=1))
 
     # Save the public key to a file in PKCS#1 format
-    with open("public_key.pem", "wb") as pub_file:
+    with open("data/public_key.pem", "wb") as pub_file:
         pub_file.write(key.publickey().export_key(format="PEM"))
 
     print("✅ RSA keys generated successfully.")

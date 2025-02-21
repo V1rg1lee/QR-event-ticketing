@@ -4,7 +4,9 @@ from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 import os
 
-db_path = os.path.abspath("qrcodes.db")
+project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+data_dir = os.path.join(project_dir, 'data')
+db_path = os.path.join(data_dir, "qrcodes.db")
 DATABASE_URL = f"sqlite+aiosqlite:///{db_path}"
 engine = create_async_engine(DATABASE_URL)
 AsyncSessionLocal = sessionmaker(
