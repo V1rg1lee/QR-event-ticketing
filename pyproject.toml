@@ -25,7 +25,8 @@ dependencies = [
 [project.optional-dependencies]
 scripts = [
     "qrcode",
-    "fpdf"
+    "fpdf",
+    "Pillow"
 ]
 
 [build-system]
