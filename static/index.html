@@ -7,52 +7,142 @@
     <title>Scan QR Code</title>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        #status { font-size: 18px; margin-top: 10px; padding: 5px; }
-        .detected { color: green; font-weight: bold; }
-        .not-detected { color: red; }
-        button { margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
-        button:disabled { background: grey; cursor: not-allowed; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 0 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .video-container {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+        }
+
+        #status {
+            font-size: 16px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #ffebcd;
+            color: #555;
+        }
+
+        .detected {
+            background: #d4edda;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .not-detected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        #result {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 5px;
+            min-height: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading::after {
+            content: "⏳ Research...";
+            display: block;
+            font-size: 14px;
+            margin-top: 5px;
+            color: #555;
+        }
     </style>
 </head>
 <body>
-    <h1>Scan a QR Code</h1>
-    <video id="video" width="300" height="200" autoplay></video>
-    <canvas id="canvas" hidden></canvas>
-    <p id="status" class="not-detected">🎥 Allow camera access</p>
-    <p id="result"></p>
-    <button id="scanButton" onclick="startScanning()">📸 Scan Now</button>
+    <div class="container">
+        <h1>Scanner un QR Code</h1>
+
+        <div class="video-container">
+            <video id="video" autoplay></video>
+        </div>
+
+        <p id="status" class="not-detected">🎥 Allow camera access</p>
+        <p id="result"></p>
+        
+        <button id="scanButton" onclick="startScanning()">📸 Scan now</button>
+    </div>
 
     <script>
         const API_URL = window.location.hostname === "localhost"
             ? "https://localhost:5000/verify"
             : `${window.location.origin}/verify`;
 
-        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-            location.replace(`https://${location.hostname}${location.pathname}${location.search}`);
-        }
-
         const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
         const statusText = document.getElementById('status');
         const resultText = document.getElementById('result');
         const scanButton = document.getElementById('scanButton');
-
         let scanning = false;
         let lastScannedCode = null;
+        let lastServerResponse = "";
 
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(function(stream) {
+            .then(stream => {
                 video.srcObject = stream;
                 video.setAttribute("playsinline", true);
-                video.play();
-                statusText.innerText = "✅ Camera enabled. Tap 'Scan Now'.";
+                statusText.innerText = "✅ Camera enabled. Press 'Scan'.";
                 statusText.className = "detected";
             })
-            .catch(function(err) {
-                alert("❌ Camera Access Error: " + err.message);
-                statusText.innerText = "❌ Camera error";
+            .catch(err => {
+                alert("❌ Camera access error: " + err.message);
+                statusText.innerText = "❌ Camera access error" + err.message;
                 statusText.className = "not-detected";
             });
 
@@ -60,7 +150,9 @@
             if (scanning) return;
             scanning = true;
             scanButton.disabled = true;
-            statusText.innerText = "🔍 Search for a QR Code...";
+            scanButton.classList.add("loading");
+
+            statusText.innerText = "🔍 Search for the QR Code...";
             statusText.className = "not-detected";
             resultText.innerText = "";
 
@@ -70,11 +162,13 @@
                 if (!scanning) return;
                 if (Date.now() - startTime > 5000) {
                     stopScanning();
-                    statusText.innerText = "❌ No QR Code found, try again.";
+                    statusText.innerText = "❌ No QR code found";
                     return;
                 }
 
                 if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    const canvas = document.createElement("canvas");
+                    const context = canvas.getContext("2d");
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                     context.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -82,16 +176,18 @@
                     const code = jsQR(imageData.data, imageData.width, imageData.height);
                     
                     if (code) {
-                        statusText.innerText = "✅ QR Code detected";
+                        statusText.innerText = "✅ QR code detected";
                         statusText.className = "detected";
                         scanning = false;
                         scanButton.disabled = false;
+                        scanButton.classList.remove("loading");
 
                         if (code.data !== lastScannedCode) {
                             lastScannedCode = code.data;
                             sendToAPI(code.data);
                         } else {
-                            resultText.innerText = "❌ This QR Code has just been scanned.";
+                            resultText.innerText = "⚠️ You just scanned this QR code now: " + lastServerResponse;
+                            resultText.style.color = "orange";
                         }
                         return;
                     }
@@ -105,6 +201,7 @@
         function stopScanning() {
             scanning = false;
             scanButton.disabled = false;
+            scanButton.classList.remove("loading");
         }
 
         function sendToAPI(qrData) {
@@ -116,13 +213,17 @@
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
-                resultText.innerText = data.message;
+                    resultText.innerText = data.message;
+                    resultText.style.color = "green";
                 } else {
-                resultText.innerText = data.error;
+                    resultText.innerText = data.error;
+                    resultText.style.color = "red";
                 }
+                lastServerResponse = data.message || data.error;
             })
             .catch(error => {
-                resultText.innerText = "❌ Server Communication Error: " + error;
+                resultText.innerText = "❌ Server error" + error;
+                resultText.style.color = "red";
             });
         }
     </script>
