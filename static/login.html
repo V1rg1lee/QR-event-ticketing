@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,88 +9,172 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f2f2f2;
-            padding-top: 50px;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 0 15px;
         }
+
         .login-container {
-            background-color: #fff;
-            width: 300px;
-            margin: 0 auto;
-            padding: 20px;
+            width: 100%;
+            max-width: 350px;
+            background: #fff;
+            padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
         .form-group {
             margin-bottom: 15px;
             text-align: left;
+            position: relative;
         }
+
         label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
         }
-        input[type="text"],
-        input[type="password"] {
+
+        .password-wrapper {
+            position: relative;
             width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
         }
-        button {
+
+        input[type="password"],
+        input[type="text"] {
             width: 100%;
             padding: 10px;
-            background-color: #4CAF50;
-            color: #fff;
+            padding-right: 40px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
             border: none;
             border-radius: 5px;
+            background: #007bff;
+            color: white;
             cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
         }
+
         button:hover {
-            background-color: #45a049;
+            background: #0056b3;
         }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
         #message {
             margin-top: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
             color: red;
         }
+
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h1>Connexion</h1>
+        <h1>Login</h1>
         <form id="loginForm">
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" required>
+                <label for="password">Enter your password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                </div>
             </div>
-            <button type="submit">Log in</button>
+            <button type="submit" id="loginButton">Log in</button>
         </form>
         <p id="message"></p>
     </div>
 
     <script>
         const API_LOGIN_URL = "{{ api_login_url }}";
+        const loginForm = document.getElementById('loginForm');
+        const loginButton = document.getElementById('loginButton');
+        const message = document.getElementById('message');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordIcon = document.querySelector(".toggle-password");
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        function togglePassword() {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePasswordIcon.innerText = "🙈"; 
+            } else {
+                passwordInput.type = "password";
+                togglePasswordIcon.innerText = "👁️";
+            }
+        }
+
+        loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const password = document.getElementById('password').value;
+            const password = passwordInput.value;
             
-            const json = { password: password };
+            loginButton.disabled = true;
+            loginButton.innerText = "Logging in...";
 
             fetch(API_LOGIN_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(json)
+                body: JSON.stringify({ password: password })
             })
-            .then(response => {
-                if (response.status === 200) {
-                    document.getElementById('message').style.color = 'green';
-                    document.getElementById('message').innerText = "Login successful.";
-                    window.location.href = "/";
+            .then(response => response.json().then(data => ({ status: response.status, body: data })))
+            .then(({ status, body }) => {
+                if (status === 200) {
+                    message.className = "success";
+                    message.innerText = "✅ Login successful. Redirecting...";
+                    setTimeout(() => { window.location.href = "/"; }, 1500);
                 } else {
-                    document.getElementById('message').style.color = 'red';
-                    document.getElementById('message').innerText = data.detail || "Wrong password.";
+                    message.className = "error";
+                    message.innerText = body.error || "❌ Incorrect password.";
+                    loginButton.disabled = false;
+                    loginButton.innerText = "Log in";
                 }
             })
             .catch(error => {
-                document.getElementById('message').innerText = "Error while trying to login.";
+                message.className = "error";
+                message.innerText = "❌ Error connecting to server.";
+                loginButton.disabled = false;
+                loginButton.innerText = "Log in";
             });
         });
     </script>
