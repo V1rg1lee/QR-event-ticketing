@@ -68,12 +68,12 @@ def verify_signature(uuid: str, signature: str, public_key: RSA.RsaKey) -> bool:
 
 def create_access_token() -> str:
     """
-    Create an access token, as a JWT, that expires in 15 minutes.
+    Create an access token, as a JWT, that expires in 1 hour.
 
     Returns:
     str: The access token.
     """
-    expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    expire = datetime.now(timezone.utc) + timedelta(hours=1)
     to_encode = {"exp": expire}
     encoded_jwt = jwt.encode(
         to_encode, load_private_key().export_key(), algorithm="RS256")

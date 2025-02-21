@@ -100,7 +100,7 @@ async def login(request: Request) -> JSONResponse:
         token = create_access_token()
         response = JSONResponse({"message": "Login successful"})
         response.set_cookie("token", token, httponly=True, samesite="strict",
-                            max_age=900, expires=900, secure=True, path="/")
+                            max_age=3600, expires=3600, secure=True, path="/")
         return response
     return JSONResponse({"error": "Login failed"}, status_code=401)
 
