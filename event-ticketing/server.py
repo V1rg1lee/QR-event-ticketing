@@ -83,3 +83,14 @@ def serve_robots() -> FileResponse:
     FileResponse: The response object.
     """
     return FileResponse("static/robots.txt")
+
+
+@app.get("/favicon.png")
+def serve_favicon() -> FileResponse:
+    """
+    Serve the favicon.png file.
+
+    Returns:
+    FileResponse: The response object.
+    """
+    return FileResponse("static/favicon.png")
