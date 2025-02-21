@@ -15,12 +15,11 @@ urls = { Repository = "https://github.com/V1rg1lee/event-ticketing.git" }
 
 dependencies = [
     "pycryptodome",
-    "reportlab",
-    "pillow",
     "fastapi",
     "uvicorn",
-    "sqlalchemy",
-    "jinja2"
+    "sqlalchemy[asyncio]",
+    "jinja2",
+    "aiosqlite"
 ]
 
 [project.optional-dependencies]

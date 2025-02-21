@@ -1,23 +1,21 @@
 import base64
+from typing import AsyncGenerator
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
-from sqlalchemy.orm import Session
-from .db import SessionLocal
+from sqlalchemy.ext.asyncio import AsyncSession
+from .db import AsyncSessionLocal
 
 
-def get_db() -> Session:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
-    Get a database session from the connection pool.
+    Get the database session.
 
-    Returns:
-    Session: A database session.
+    Yields:
+    AsyncSession: The database session.
     """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    async with AsyncSessionLocal() as session:
+        yield session
 
 
 def load_public_key() -> RSA.RsaKey:
