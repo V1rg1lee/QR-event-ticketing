@@ -3,8 +3,9 @@ from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+import os
 from .db import QRCodes, init_db
-from .utils import get_db, load_public_key, verify_signature
+from .utils import get_db, load_public_key, verify_signature, create_access_token, is_authenticated
 
 app = FastAPI()
 templates = Jinja2Templates(directory="static")
@@ -19,17 +20,21 @@ async def startup_event():
 
 
 @app.post("/verify")
-async def verify_qr_code(request: Request, db: AsyncSession = Depends(get_db)) -> JSONResponse:
+async def verify_qr_code(request: Request, db: AsyncSession = Depends(get_db), is_auth: bool = Depends(is_authenticated)) -> JSONResponse:
     """
     Verify the QR code and mark it as used if valid.
 
     Args:
     request (Request): The request object.
     db (Session): The database session.
+    is_auth (bool): Whether the user is authenticated.
 
     Returns:
     JSONResponse: The response object.
     """
+    if not is_auth:
+        return JSONResponse({"error": "❌ Unauthorized. Reload the page and log in."}, status_code=401)
+
     data = await request.json()
     qr_content = data.get("uuid", "").strip()
 
@@ -61,17 +66,43 @@ async def verify_qr_code(request: Request, db: AsyncSession = Depends(get_db)) -
 
 
 @app.get("/")
-def serve_frontend(request: Request) -> HTMLResponse:
+def serve_frontend(request: Request, is_auth: bool = Depends(is_authenticated)) -> HTMLResponse:
     """
     Serve the frontend.
 
     Args:
     request (Request): The request object.
+    is_auth (bool): Whether the user is authenticated.
 
     Returns:
     HTMLResponse: The response object.
     """
+    if not is_auth:
+        return templates.TemplateResponse("login.html", {"request": request, "api_login_url": request.url_for('login').replace(scheme="https")})
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.post("/login")
+async def login(request: Request) -> JSONResponse:
+    """
+    Log in the user.
+
+    Args:
+    request (Request): The request object.
+
+    Returns:
+    JSONResponse: The response object.
+    """
+    data = await request.json()
+    password = data.get("password", None)
+
+    if password == os.getenv("PASSWORD"):
+        token = create_access_token()
+        response = JSONResponse({"message": "Login successful"})
+        response.set_cookie("token", token, httponly=True, samesite="strict",
+                            max_age=900, expires=900, secure=True, path="/")
+        return response
+    return JSONResponse({"error": "Login failed"}, status_code=401)
 
 
 @app.get("/robots.txt")

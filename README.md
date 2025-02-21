@@ -20,14 +20,16 @@ pip install .
 
 ### Run the project
 
+You have to set a "PASSWORD" environment variable to run the project.
+
 ```bash
-python -m event-ticketing
+python -E -m event-ticketing
 ```
 
 ### Run the project with a self signed certificate
 
 ```bash
-python -m event-ticketing --ssl
+python -E -m event-ticketing --ssl
 ```
 
 ### Run the scripts
@@ -43,13 +45,13 @@ pip install .[scripts]
 You must be in the root directory of the project to run the scripts.
 
 ```bash
-python ./scripts/private_key_gen.py
+python -E ./scripts/private_key_gen.py
 ```
 
 ```bash
-python ./scripts/gen_qr_code.py
+python -E ./scripts/gen_qr_code.py
 ```
 
 ```bash
-python ./scripts/print_qr.py
+python -E ./scripts/print_qr.py
 ```

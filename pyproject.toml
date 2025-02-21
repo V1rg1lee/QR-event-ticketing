@@ -19,7 +19,9 @@ dependencies = [
     "uvicorn",
     "sqlalchemy[asyncio]",
     "jinja2",
-    "aiosqlite"
+    "aiosqlite",
+    "pyjwt",
+    "cryptography",
 ]
 
 [project.optional-dependencies]
