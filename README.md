@@ -28,6 +28,9 @@ python -E -m event-ticketing
 
 ### Run the project with a self signed certificate
 
+You have to set a "PASSWORD" environment variable to run the project. 
+If you want to use self signed certificate, you can use the "certif_gen.py" script as described below.
+
 ```bash
 python -E -m event-ticketing --ssl
 ```
@@ -43,6 +46,10 @@ pip install .[scripts]
 #### Run the scripts
 
 You must be in the root directory of the project to run the scripts.
+
+```bash
+python -E ./scripts/certif_gen.py
+```
 
 ```bash
 python -E ./scripts/private_key_gen.py
