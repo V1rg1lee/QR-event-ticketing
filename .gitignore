@@ -7,3 +7,5 @@ public_key.pem
 build/
 *.egg-info/
 *.pyc
+cert.pem
+key.pem

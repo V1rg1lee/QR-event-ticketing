@@ -30,7 +30,18 @@ pip install .
 
 ### Run the project
 
+**Warning:** this will launch the website without a certificate. The website can not work entirely like this. It's better to launch the website with a self-signed certificate if you don't have a certificate, it's described below in **Run the project with a self signed certificate**.
+
 You have to set a "PASSWORD" environment variable to run the project. The password will be used by staff to connect to the site on the interface to scan.
+
+You can do it with the following command on linux:
+
+```bash
+export PASSWORD="your_password"
+```
+
+Then you can launch the website with the following command:
+(Be careful, you need to generate the private key and the QR codes before running the website, you can do it with the additional scripts described below)
 
 ```bash
 python -E -m event-ticketing
@@ -41,9 +52,20 @@ python -E -m event-ticketing
 You have to set a "PASSWORD" environment variable to run the project. The password will be used by staff to connect to the site on the interface to scan.
 If you want to use self signed certificate, you can use the "certif_gen.py" script as described below.
 
+You can do it with the following command on linux:
+
+```bash
+export PASSWORD="your_password"
+```
+
+Then you can launch the website with the following command:
+(Be careful, you need to generate the private key and the QR codes before running the website, you can do it with the additional scripts described below)
+
 ```bash
 python -E -m event-ticketing --ssl
 ```
+
+If you want to use the website with your own certificate, you can put your `cert.pem` and `key.pem` files in the `certs` directory.
 
 ### Run the scripts
 
